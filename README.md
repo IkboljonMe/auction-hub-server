@@ -1,55 +1,85 @@
-# Auction Server
+# Auction Hub Server
 
-This is the backend server for the auction project. It complements the front-end client, providing essential functionality for managing auctions, user authentication, and real-time communication. The server is built using Node.js, Express, and integrates with various libraries and services to deliver a seamless online auction experience.
+Backend for **Auction Hub**, an online auction app where users can create auctions and place bids in real time. It is a REST API with Express and MongoDB, plus Socket.IO so every open page sees new bids immediately. I built it to learn real-time apps and JWT auth with roles.
 
-**Frontend Client:** Check out the [Client Repository](https://github.com/IkboljonMe/auction-front).
+**Client repo:** [auction-hub-client](https://github.com/IkboljonMe/auction-hub-client)
 
-| [Link](https://server-auction-hub.vercel.app) | ✅  |
-| --------------------------------------------- | --- |
-| Client                                        | ✅  |
-| Server                                        | ❌  |
+## Features
 
-## Installation
+- Sign up / sign in with JWT (token lives 30 days)
+- User and admin roles
+- Create auctions with image upload to Cloudinary
+- Place bids, a bid must be higher than the current bid and the auction must not be ended
+- New bids are sent to all clients with Socket.IO
+- Admin can manage users and delete auctions
 
-Before getting started, ensure you have [Node.js](https://nodejs.org/) installed on your system.
+## Built with
 
-1. Clone this repository to your local machine.
-2. Navigate to the project directory:
+- Node.js + Express
+- MongoDB + Mongoose
+- Socket.IO
+- JWT + bcryptjs
+- Cloudinary + Multer (image upload)
+
+## How to run
+
+You need Node.js, MongoDB (local or Atlas) and a free [Cloudinary](https://cloudinary.com/) account for images.
+
+```bash
+git clone https://github.com/IkboljonMe/auction-hub-server.git
+cd auction-hub-server
+npm install
+cp .env.example .env
+npm run dev
+```
+
+Fill `.env`:
 
 ```
-cd auction-backend`
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/auction
+JWT_SECRET=any_secret
+API_URI=http://localhost:3000        # client url, allowed by socket.io
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
 ```
 
-3.  Install the required dependencies:
+Server runs on http://localhost:5000. Use `npm start` to run without nodemon.
+
+To make a user admin, set `isAdmin: true` for them in the `users` collection.
+
+## API
+
+| Method | Route | Access | Description |
+| --- | --- | --- | --- |
+| POST | `/api/users/signup` | public | Create account |
+| POST | `/api/users/signin` | public | Login, returns JWT |
+| PUT | `/api/users/profile/:id` | user | Update own profile |
+| GET | `/api/users` | admin | All users |
+| GET / PUT / DELETE | `/api/users/:id` | admin | Get, edit or delete user |
+| GET | `/api/auctions` | public | All auctions |
+| GET | `/api/auctions/:id` | user | One auction |
+| POST | `/api/auctions` | user | Create auction |
+| POST | `/api/auctions/:id/bids` | user | Place bid, body: `{ bidAmount }` |
+| DELETE | `/api/auctions/:id` | admin | Delete auction |
+| POST | `/api/upload` | admin | Upload image (form field `file`) |
+
+Socket event: after every bid the server emits `bid` with the updated auction.
+
+## Project structure
 
 ```
-npm install`
+index.js          express + socket.io server
+base/
+  controllers/    auction, user and upload logic
+  models/         Auction and User
+  routes/
+  middlewares/    isAuth, isAdmin
+  socket/         socket.io setup
+  database/       mongodb connection
 ```
 
-## Usage
+---
 
-To run the server locally, use the following command:
-
-```
-npm start
-```
-
-This will start the server, making it accessible for the client and handling API requests.
-
-## Dependencies
-
-Here are some of the key dependencies used in this project:
-
-- [Express](https://expressjs.com/): A fast, unopinionated, and minimalist web framework for Node.js.
-- [MongoDB](https://www.mongodb.com/): A NoSQL database used for storing auction data.
-- [Socket.IO](https://socket.io/): A library for real-time, bidirectional communication between clients and the server.
-- [Cloudinary](https://cloudinary.com/): A cloud-based service for managing and delivering images and media files.
-- [bcryptjs](https://www.npmjs.com/package/bcryptjs): A library for hashing and verifying passwords.
-- [jsonwebtoken](https://jwt.io/): A library for creating and verifying JSON Web Tokens for authentication.
-
-You can find the complete list of dependencies in the `package.json` file.
-
-## Scripts
-
-- `npm start`: Starts the server using [nodemon](https://nodemon.io/) for automatic reloading during development.
-- `npm test`: Run tests (customize tests as needed).
+Made by [IkboljonMe](https://github.com/IkboljonMe)
