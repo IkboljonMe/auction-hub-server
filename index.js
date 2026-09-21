@@ -1,13 +1,8 @@
 import express from "express";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { Server } from "socket.io";
 import http from "http";
 import cors from "cors";
-import path from "path";
 
-import seed from "./base/seed/seed.js";
-import Auction from "./base/models/auctionModel.js";
 import database from "./base/database/database.js";
 import serverError from "./base/error/serverError.js";
 import createSocketServer from "./base/socket/socket.js";
@@ -21,7 +16,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.use("/api/seed", seed);
 database();
 app.use("/api/upload", uploadRouter);
 app.use("/api/users", userRouter);

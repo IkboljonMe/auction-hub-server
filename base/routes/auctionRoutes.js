@@ -1,5 +1,4 @@
 import express from "express";
-import { io } from "../../index.js";
 import isAdmin from "../middlewares/isAdmin.js";
 import isAuth from "../middlewares/isAuth.js";
 const auctionRouter = express.Router();

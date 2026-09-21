@@ -1,18 +1,16 @@
 {
-  "name": "backend",
+  "name": "auction-hub-server",
   "type": "module",
   "version": "1.0.0",
-  "description": "",
+  "description": "REST API and Socket.IO server for Auction Hub",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Ikboljon Abdurasulov",
+  "license": "MIT",
   "dependencies": {
-    "@cloudinary/react": "^1.11.1",
-    "@cloudinary/url-gen": "^1.9.2",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.35.0",
     "cors": "^2.8.5",

@@ -4,11 +4,11 @@ import expressAsyncHandler from "express-async-handler";
 import generateToken from "../helpers/generateToken.js";
 
 export const getUser = expressAsyncHandler(async (req, res) => {
-  const users = await User.find({});
+  const users = await User.find({}).select("-password");
   res.send(users);
 });
 export const getUserById = expressAsyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(req.params.id).select("-password");
   if (user) {
     res.send(user);
   } else {
@@ -20,10 +20,20 @@ export const putChangeUserInfoById = expressAsyncHandler(async (req, res) => {
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    user.isAdmin = Boolean(req.body.isAdmin);
+    if (req.body.isAdmin !== undefined) {
+      user.isAdmin = Boolean(req.body.isAdmin);
+    }
 
     const updatedUser = await user.save();
-    res.send({ message: "User Updated Successfully", user: updatedUser });
+    res.send({
+      message: "User Updated Successfully",
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        isAdmin: updatedUser.isAdmin,
+      },
+    });
   } else {
     res.status(404).send({ message: "User Not Found" });
   }
@@ -63,11 +73,6 @@ export const signUpUser = expressAsyncHandler(async (req, res) => {
     name: req.body.name,
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password),
-    seller: {
-      name: req.body.sellerName,
-      logo: req.body.sellerLogo,
-      description: req.body.sellerDescription,
-    },
   });
   // saving new user in mongodb
   const user = await newUser.save();
@@ -77,7 +82,6 @@ export const signUpUser = expressAsyncHandler(async (req, res) => {
     name: user.name,
     email: user.email,
     isAdmin: user.isAdmin,
-    seller: user.seller,
     token: generateToken(user),
   });
 });
